@@ -1,0 +1,9 @@
+[package]
+name = "outer-cli"
+version = "0.1.0"
+authors = ["dark64 <darem966@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "outer"
+path = "src/bin.rs"
