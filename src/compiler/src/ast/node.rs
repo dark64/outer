@@ -8,9 +8,27 @@ pub struct Node<T> {
     pub value: T,
 }
 
-impl<T: fmt::Display> Node<T> {
-    pub fn from(value: T, start: Position, end: Position) -> Self {
-        Self { value, start, end }
+impl<T: fmt::Debug> Node<T> {
+    pub fn from(value: T) -> Self {
+        Self {
+            start: Default::default(),
+            end: Default::default(),
+            value,
+        }
+    }
+    pub fn set_start(mut self, start: Position) -> Self {
+        self.start = start;
+        self
+    }
+    pub fn set_end(mut self, end: Position) -> Self {
+        self.end = end;
+        self
+    }
+}
+
+impl<T: PartialEq> PartialEq for Node<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
     }
 }
 

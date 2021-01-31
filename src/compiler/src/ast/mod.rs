@@ -1,12 +1,12 @@
 use crate::ast::node::Node;
 use crate::ast::types::{Type, TypeNode};
 
-mod node;
-mod types;
+pub mod node;
+pub mod types;
 
 pub type Identifier = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     Int32(i32),
     Int64(i64),
@@ -18,7 +18,7 @@ pub enum Literal {
     Null,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Identifier(Identifier),
     Literal(Literal),
@@ -48,45 +48,43 @@ pub enum Expression {
 
 pub type ExpressionNode = Node<Expression>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
     pub id: Identifier,
-    pub ty: Type,
+    pub ty: Option<Type>,
 }
 
 impl Variable {
-    pub fn new(id: Identifier, ty: Type) -> Self {
+    pub fn new(id: Identifier, ty: Option<Type>) -> Self {
         Self { id, ty }
     }
 }
 
 pub type VariableNode = Node<Variable>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Assignee {
     Identifier(Identifier),
 }
 
 pub type AssigneeNode = Node<Assignee>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DefinitionType {
     Let,
     Auto,
 }
 
-pub type DefinitionTypeNode = Node<DefinitionType>;
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     Declaration(VariableNode),
-    Definition(DefinitionTypeNode, VariableNode, ExpressionNode),
+    Definition(DefinitionType, VariableNode, ExpressionNode),
     TypeDefinition(Identifier, TypeNode),
     Assignment(AssigneeNode, ExpressionNode),
     Condition(
         ExpressionNode,
-        Vec<StatementNode>,
-        Option<Vec<StatementNode>>,
+        BlockStatementNode,
+        Option<BlockStatementNode>,
     ),
     FunctionCall(Identifier, Vec<ExpressionNode>),
     Return(ExpressionNode),
@@ -94,7 +92,12 @@ pub enum Statement {
 
 pub type StatementNode = Node<Statement>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockStatement(pub Vec<StatementNode>);
+
+pub type BlockStatementNode = Node<BlockStatement>;
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionSignature {
     pub inputs: Vec<Type>,
     pub output: Option<Type>,
@@ -102,7 +105,7 @@ pub struct FunctionSignature {
 
 pub type ParameterNode = VariableNode;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Function {
     pub id: Identifier,
     pub parameters: Vec<ParameterNode>,
@@ -122,7 +125,7 @@ impl Function {
             inputs: parameters
                 .clone()
                 .iter()
-                .map(|p| p.value.ty.clone())
+                .map(|p| p.value.ty.as_ref().cloned().unwrap())
                 .collect(),
             output: return_type.clone().map(|r| r),
         };
@@ -139,4 +142,4 @@ impl Function {
 pub type FunctionNode = Node<Function>;
 
 #[derive(Debug, Clone)]
-pub struct Program(Vec<StatementNode>);
+pub struct Program(pub Vec<StatementNode>);

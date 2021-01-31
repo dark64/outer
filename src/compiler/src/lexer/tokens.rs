@@ -6,12 +6,16 @@ use std::fmt::Formatter;
 pub struct Token {
     pub ty: TokenType,
     pub value: String,
-    pub pos: Position,
+    pub position: Position,
 }
 
 impl Token {
-    pub fn new(ty: TokenType, value: String, pos: Position) -> Token {
-        Token { ty, value, pos }
+    pub fn new(ty: TokenType, value: String, position: Position) -> Token {
+        Token {
+            ty,
+            value,
+            position,
+        }
     }
 }
 

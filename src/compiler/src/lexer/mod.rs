@@ -1,4 +1,4 @@
-mod tokens;
+pub mod tokens;
 
 use crate::lexer::tokens::{Token, TokenType};
 use crate::position::Position;
