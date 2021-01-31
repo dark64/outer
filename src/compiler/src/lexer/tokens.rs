@@ -27,11 +27,20 @@ pub enum TokenType {
     VarType,    // "i32" | "i64" | "u32" | "u64" | "bool" | "string"
 
     // Keywords
+    Typedef,  // typedef
     Function, // func
     Let,      // let
+    Auto,     // auto
     Return,   // return
     If,       // if
     Else,     // else
+    For,      // for
+    While,    // while
+    Continue, // continue
+    Break,    // break
+    Switch,   // switch
+    Case,     // case
+    Default,  // default
 
     // Literals
     IntLiteral,     // -?[0-9]+
@@ -51,9 +60,11 @@ pub enum TokenType {
     Power,        // **
 
     // Bitwise operators
-    BitAnd, // &
-    BitOr,  // |
-    BitXor, // ^
+    BitAnd,        // &
+    BitOr,         // |
+    BitXor,        // ^
+    BitLeftShift,  // <<
+    BitRightShift, // >>
 
     // Logical operators
     Lt,  // <

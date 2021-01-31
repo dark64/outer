@@ -129,17 +129,25 @@ impl<'a> Lexer<'a> {
             }
             '^' => Some(TokenType::BitXor),
             '<' => {
-                if let Some(&'=') = self.peek_char() {
+                let next_char = self.peek_char();
+                if let Some(&'=') = next_char {
                     value.push(self.next_char().unwrap());
                     Some(TokenType::Lte)
+                } else if let Some(&'<') = next_char {
+                    value.push(self.next_char().unwrap());
+                    Some(TokenType::BitLeftShift)
                 } else {
                     Some(TokenType::Lt)
                 }
             }
             '>' => {
-                if let Some(&'=') = self.peek_char() {
+                let next_char = self.peek_char();
+                if let Some(&'=') = next_char {
                     value.push(self.next_char().unwrap());
                     Some(TokenType::Gte)
+                } else if let Some(&'>') = next_char {
+                    value.push(self.next_char().unwrap());
+                    Some(TokenType::BitRightShift)
                 } else {
                     Some(TokenType::Gt)
                 }
@@ -224,11 +232,20 @@ impl<'a> Lexer<'a> {
     fn reserved_lookup(&self, id: &str) -> Option<TokenType> {
         match id {
             "i32" | "i64" | "u32" | "u64" | "bool" | "string" => Some(TokenType::VarType),
+            "typedef" => Some(TokenType::Typedef),
             "func" => Some(TokenType::Function),
             "let" => Some(TokenType::Let),
+            "auto" => Some(TokenType::Auto),
             "return" => Some(TokenType::Return),
             "if" => Some(TokenType::If),
             "else" => Some(TokenType::Else),
+            "for" => Some(TokenType::For),
+            "while" => Some(TokenType::While),
+            "continue" => Some(TokenType::Continue),
+            "break" => Some(TokenType::Break),
+            "switch" => Some(TokenType::Switch),
+            "case" => Some(TokenType::Case),
+            "default" => Some(TokenType::Default),
             "true" => Some(TokenType::BooleanLiteral),
             "false" => Some(TokenType::BooleanLiteral),
             _ => None,
@@ -256,10 +273,11 @@ mod tests {
         let lexer = Lexer::new(
             r#"
             // single line comment
-            _var0 var1 123 -123
-            = + - * / % ** ++ -- == != < <= > >= ! ? & ^ | && || , ; : ( ) [ ] { }
+            _var0 var1 123 -123 true false
+            = + - * / % ** ++ -- == != < <= > >= ! ? & ^ | << >> && || , ; : ( ) [ ] { }
             "string literal" "escaped \"string literal\""
-            func let return if else i32 u32 i64 u64 string bool true false
+            typedef func let auto return if else for while continue break switch case default
+            i32 u32 i64 u64 string bool
         "#,
         );
 
@@ -269,6 +287,8 @@ mod tests {
             TokenType::Identifier,     // var1
             TokenType::IntLiteral,     // 123
             TokenType::IntLiteral,     // -123
+            TokenType::BooleanLiteral, // true
+            TokenType::BooleanLiteral, // false
             TokenType::Assign,         // =
             TokenType::Plus,           // +
             TokenType::Minus,          // -
@@ -289,6 +309,8 @@ mod tests {
             TokenType::BitAnd,         // &
             TokenType::BitXor,         // ^
             TokenType::BitOr,          // |
+            TokenType::BitLeftShift,   // <<
+            TokenType::BitRightShift,  // >>
             TokenType::And,            // &&
             TokenType::Or,             // ||
             TokenType::Comma,          // ,
@@ -302,19 +324,26 @@ mod tests {
             TokenType::RBrace,         // }
             TokenType::StringLiteral,  // "string literal"
             TokenType::StringLiteral,  // "escaped \"string literal\""
+            TokenType::Typedef,        // typedef
             TokenType::Function,       // func
             TokenType::Let,            // let
+            TokenType::Auto,           // auto
             TokenType::Return,         // return
             TokenType::If,             // if
             TokenType::Else,           // else
+            TokenType::For,            // for
+            TokenType::While,          // while
+            TokenType::Continue,       // continue
+            TokenType::Break,          // break
+            TokenType::Switch,         // switch
+            TokenType::Case,           // case
+            TokenType::Default,        // default
             TokenType::VarType,        // i32
             TokenType::VarType,        // u32
             TokenType::VarType,        // i64
             TokenType::VarType,        // u64
             TokenType::VarType,        // string
             TokenType::VarType,        // bool
-            TokenType::BooleanLiteral, // true
-            TokenType::BooleanLiteral, // false
         ];
 
         let tokens: Vec<(Token, TokenType)> = lexer.into_iter().zip(expected).collect();
